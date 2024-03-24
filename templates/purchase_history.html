@@ -5,39 +5,141 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purchase History</title>
     <style>
-        body{
-        background-image: url('https://img.freepik.com/premium-vector/hand-drawn-minimal-abstract-blue-grey-shape-background_643365-41.jpg'); 
-        background-size: cover; 
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
+        body {
+            position: relative; /* Set position relative for positioning absolute elements */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden; /* Prevent scrollbars */
+            margin: 0; /* Remove default margin */
+            font-family: Arial, sans-serif; /* Use a common font */
+        }
+
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            object-fit: cover;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+        }
+
+        .content {
+            position: relative;
+            z-index: 1; /* Ensure content appears above video */
+            color: #fff; /* Text color */
+            text-align: center;
+        }
+
+        .user_menu {
+            position: absolute;
+            top: 10px;
+            right: 10px; /* Adjusted to top right corner */
+            text-align: right; /* Align contents to the right */
+        }
+
+        .username_button,
+        .disconnect_button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            outline: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-left: 10px; /* Add margin between buttons */
+            margin-top: 10px; /* Add margin to push buttons to top */
+        }
+
+        .disconnect_button {
+            background-color: #fff;
+            color: #007bff;
+            margin-left: 2mm; /* Adjust the distance */
+        }
+
+        .username_button:hover {
+            background-color: #0056b3;
+        }
+
+        .disconnect_button:hover {
+            background-color: #007bff;
+            color: #fff; /* Change text color on hover */
+        }
+
+        .user_menu_items {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 120px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            right: 0;
+        }
+
+        .user_menu:hover .user_menu_items {
+            display: block;
+        }
+
+        .user_menu_items a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .user_menu_items a:hover {
+            background-color: #f1f1f1;
         }
     </style>
-
 </head>
 <body>
 
+<video class="video-background" autoplay muted loop>
+    <source src="/static/adminvid.mp4" type="video/mp4">
+    <!-- Fallback content in case the browser doesn't support HTML5 video -->
+    Your browser does not support the video tag.
+</video>
 
-        {% if request.cookies.get('username') %}
-        <div style="position: absolute; top: 0; right: 0;">
-            <span>{{ request.cookies.get('username') }}</span> | <a href="/purchase_history">Purchase History</a> | <a href="/register">Purchase Ticket</a> | <a href="/admin">Settings</a>
-            <form action="/logout" method="post">
-                <input type="submit" value="Disconnect">
-          </form>
+<div class="overlay"></div>
+
+<div class="content">
+    {% if request.cookies.get('username') %}
+    <div class="user_menu">
+        <form action="/logout" method="post">
+            <input class="disconnect_button" type="submit" value="Disconnect">
+        </form>
+        <button class="username_button">{{ request.cookies.get('username') }}</button>
+        <div class="user_menu_items">
+            <a href="/purchase_history">Purchase History</a>
+            <a href="/register">Purchase Ticket</a>
+            <a href="/admin">Settings</a>
         </div>
+    </div>
     {% endif %}
 
     {% if tickets %}
-
-        <ul>
-		  <h1 style="text-align: center">Purchase History</h1>
+    <ul>
+        <h1 style="text-align: center; color: white;">Purchase History</h1>
         {% for ticket in tickets %}
-            <li>{{ ticket.fname }} {{ ticket.lname }} - {{ ticket.email }} - {{ ticket.type }}</li>
+        <li>{{ ticket.fname }} {{ ticket.lname }} - {{ ticket.email }} - {{ ticket.type }}</li>
         {% endfor %}
-        </ul>
+    </ul>
     {% else %}
-        <p>No tickets purchased yet.</p>
+    <p style="color: white;">No tickets purchased yet.</p>
     {% endif %}
+</div>
+
 </body>
 </html>

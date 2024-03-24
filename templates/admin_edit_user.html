@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit User</title>
+</head>
+<body>
+    <h1 style="font-size: 2em;">Edit User Details</h1>
+    <form action="/admin/edit" method="post">
+        <input type="hidden" id="username" name="username" value="{{ request.args.get('username') }}" required>
+        <label for="new_name">New Name:</label><br>
+        <input type="text" id="new_name" name="new_name" required><br>
+        <label for="new_email">New Email:</label><br>
+        <input type="email" id="new_email" name="new_email" required><br>
+        <label for="new_password">New Password:</label><br>
+        <input type="password" id="new_password" name="new_password" required><br>
+        <input type="submit" value="Update User">
+    </form>
+</body>
+</html>

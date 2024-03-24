@@ -1,0 +1,4 @@
+flask
+gunicorn
+pdf2docx
+fpdf

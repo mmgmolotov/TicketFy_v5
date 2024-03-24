@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticketfy | Homepage</title>
+    <link rel="stylesheet" href="./static/style.css">
+    <!-- Unicons -->
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* To prevent scrollbars */
+        }
+        #video-background {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%; 
+            min-height: 100%;
+            width: 100%; 
+            height: 100%;
+            z-index: -1000; /* Put it behind everything */
+            object-fit: cover; /* Cover the entire container */
+        }
+        .content {
+            position: relative; /* Ensure content is on top */
+            z-index: 1;
+        }
+        .header {
+            /* Add your header styles */
+        }
+        .home {
+            /* Add your home section styles */
+        }
+    </style>
+</head>
+<body>
+    <video autoplay muted loop id="video-background">
+        <source src="/static/bgvid.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <!-- Header -->
+    <header class="header content">
+        <nav class="nav">
+            <a class="nav_logo" href="http://ticketfy.me">Ticketfy</a>
+            <ul class="nav_items">
+                <li class="nav_item">
+                    <a class="nav_link" href="http://ticketfy.me">Home</a>
+                    <a class="nav_link" href="/ticket">Ticket</a>
+                    <a class="nav_link" href="http://ticketfy.me/#about">About</a>
+                    <a class="nav_link" href="http://ticketfy.me/#contact">Contact</a>
+                </li>
+            </ul>
+            <ul>
+                {% if request.cookies.get('username') %}
+                <ul>
+                    <span class="nav_logo">{{ request.cookies.get('username') }}</span>|
+                    <form action="/logout" method="post">
+                        <input type="submit" value="Logout">
+                    </form>
+                </ul>
+                {% else %}
+                <button class="button" id="form-open">Login</button>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Home -->
+    <section class="home content">
+        <div class="form_container">
+            <i class="uil uil-times form_close"></i>
+            <!-- Login Form -->
+            <div class="form login_form">
+                <form action="/login" method="post">
+                    <h2>Login</h2>
+                    <div class="input_box">
+                        <input name="username" placeholder="Enter your username" required="" type="text"/>
+                        <i class="uil uil-envelope-alt email"></i>
+                    </div>
+                    <div class="input_box">
+                        <input name="password" placeholder="Enter your password" required="" type="password"/>
+                        <i class="uil uil-lock password"></i>
+                        <i class="uil uil-eye-slash pw_hide"></i>
+                    </div>
+                    <div class="option_field">
+                        <span class="checkbox">
+                            <input id="check" type="checkbox"/>
+                            <label for="check">Remember me</label>
+                        </span>
+                        <a class="forgot_pw" href="#">Forgot password?</a>
+                    </div>
+                    <button class="button" type="submit">Login Now</button>
+                    <div class="login_signup">
+                        Don't have an account?
+                        <a href="#" id="signup">Signup</a>
+                    </div>
+                </form>
+            </div>
+            <!-- Signup Form -->
+            <div class="form signup_form">
+                <form action="/register" method="post">
+                    <h2>Signup</h2>
+                    <div class="input_box">
+                        <input name="username" placeholder="Enter your username" required="" type="text"/>
+                        <i class="uil uil-envelope-alt user"></i>
+                    </div>
+                    <div class="input_box">
+                        <input name="email" placeholder="Enter your email" required="" type="email"/>
+                        <i class="uil uil-envelope-alt email"></i>
+                    </div>
+                    <div class="input_box">
+                        <input name="password" placeholder="Create password" required="" type="password"/>
+                        <i class="uil uil-lock password"></i>
+                        <i class="uil uil-eye-slash pw_hide"></i>
+                    </div>
+                    <div class="input_box">
+                        <input name="confirm_password" placeholder="Confirm password" required="" type="password"/>
+                        <i class="uil uil-lock password"></i>
+                        <i class="uil uil-eye-slash pw_hide"></i>
+                    </div>
+                    <button class="button" type="submit">Signup Now</button>
+                    <div class="login_signup">
+                        Already have an account?
+                        <a href="#" id="login">Login</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Your scripts -->
+    <script src="./static/js/script.js"></script>
+</body>
+</html>

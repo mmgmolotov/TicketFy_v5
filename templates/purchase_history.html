@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase History</title>
+    <style>
+        body{
+        background-image: url('https://img.freepik.com/premium-vector/hand-drawn-minimal-abstract-blue-grey-shape-background_643365-41.jpg'); 
+        background-size: cover; 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        }
+    </style>
+
+</head>
+<body>
+
+
+        {% if request.cookies.get('username') %}
+        <div style="position: absolute; top: 0; right: 0;">
+            <span>{{ request.cookies.get('username') }}</span> | <a href="/purchase_history">Purchase History</a> | <a href="/register">Purchase Ticket</a> | <a href="/admin">Settings</a>
+            <form action="/logout" method="post">
+                <input type="submit" value="Disconnect">
+          </form>
+        </div>
+    {% endif %}
+
+    {% if tickets %}
+
+        <ul>
+		  <h1 style="text-align: center">Purchase History</h1>
+        {% for ticket in tickets %}
+            <li>{{ ticket.fname }} {{ ticket.lname }} - {{ ticket.email }} - {{ ticket.type }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No tickets purchased yet.</p>
+    {% endif %}
+</body>
+</html>

@@ -4,18 +4,104 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit User</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        #video-background {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -1;
+            object-fit: cover;
+        }
+        .container {
+            position: relative;
+            z-index: 1;
+            padding-top: 50px;
+        }
+        h1 {
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: Arial, sans-serif; /* Same font as body */
+        }
+        input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        table {
+            font-family: Arial, sans-serif; /* Same font as body */
+            font-size: medium; /* Medium font size */
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
-    <h1 style="font-size: 2em;">Edit User Details</h1>
-    <form action="/admin/edit" method="post">
-        <input type="hidden" id="username" name="username" value="{{ request.args.get('username') }}" required>
-        <label for="new_name">New Name:</label><br>
-        <input type="text" id="new_name" name="new_name" required><br>
-        <label for="new_email">New Email:</label><br>
-        <input type="email" id="new_email" name="new_email" required><br>
-        <label for="new_password">New Password:</label><br>
-        <input type="password" id="new_password" name="new_password" required><br>
-        <input type="submit" value="Update User">
-    </form>
+    <video autoplay muted loop id="video-background">
+        <source src="/static/bg_empty.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    <div class="container">
+        <h1>Edit User Details</h1>
+        <form action="/admin/edit" method="post">
+            <input type="hidden" id="username" name="username" value="{{ request.args.get('username') }}" required>
+            <div class="form-group">
+                <label for="new_name">New Name:</label>
+                <input type="text" id="new_name" name="new_name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="new_email">New Email:</label>
+                <input type="email" id="new_email" name="new_email" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="new_password">New Password:</label>
+                <input type="password" id="new_password" name="new_password" class="form-control" required>
+            </div>
+            <input type="submit" value="Update User" class="btn btn-primary">
+        </form>
+    </div>
 </body>
 </html>

@@ -5,10 +5,62 @@ from gunicorn.app.base import BaseApplication
 from logging_config import configure_logging
 import logging
 from pdf2docx import Converter
+from io import BytesIO
+import base64
+import qrcode
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+import json
+from fpdf import FPDF
+import random
+import string
+import qrcode
+from io import BytesIO
+import tempfile
 
 app = Flask(__name__)
+def generate_serial_number(length=8):
+    # Generate a random alphanumeric string of specified length
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
+def generate_ticket(username, email, full_name, ticket_type):
+    # Generate a random serial number
+    serial_number = ''.join(random.choices('0123456789ABCDEF', k=8))
 
-# Removed html_to_pdf function to reduce memory usage and replaced with direct template rendering
+    # Create a PDF instance
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+
+    # Add user information and ticket details
+    pdf.cell(200, 10, txt="Ticket Information", ln=True, align='C')
+    pdf.cell(200, 10, txt=f"Username: {username}", ln=True, align='L')
+    pdf.cell(200, 10, txt=f"Email: {email}", ln=True, align='L')
+    pdf.cell(200, 10, txt=f"Full Name: {full_name}", ln=True, align='L')
+    pdf.cell(200, 10, txt=f"Ticket Type: {ticket_type}", ln=True, align='L')
+    pdf.cell(200, 10, txt=f"Serial Number: {serial_number}", ln=True, align='L')
+
+    # Generate QR code
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(serial_number)
+    qr.make(fit=True)
+    qr_img = qr.make_image(fill_color="black", back_color="white")
+
+    # Save QR code to a temporary file
+    tmp_file_path = tempfile.mktemp(suffix=".png")
+    qr_img.save(tmp_file_path)
+
+    # Add QR code to PDF
+    pdf.image(tmp_file_path, x=10, y=100, w=50)
+
+    # Output PDF to a temporary file
+    tmp_pdf_file = tempfile.mktemp(suffix=".pdf")
+    pdf.output(tmp_pdf_file)
+
+    # Read the contents of the temporary PDF file
+    with open(tmp_pdf_file, "rb") as file:
+        pdf_bytes = file.read()
+
+    return pdf_bytes
 
 @app.route("/", methods=["GET"])
 def root_route():
@@ -201,13 +253,32 @@ def save_tickets(tickets):
         json.dump(tickets, file)
 
 users = load_users()
-
 @app.route("/ticket", methods=["GET", "POST"])
 def ticket_route():
-    if not request.cookies.get('username'):
-        return redirect(url_for('login'))
-    return render_template('ticket.html')
+    if request.method == "GET":
+        # Render the ticket.html template for GET requests
+        return render_template('ticket.html')
+    elif request.method == "POST":
+        # Handle the purchase ticket logic for POST requests
+        if not request.cookies.get('username'):
+            return redirect(url_for('login'))
+        
+        # Get the user information from the form
+        username = request.cookies.get('username')
+        email = request.form.get('email')
+        full_name = request.form.get('fname') + " " + request.form.get('lname')
+        ticket_type = request.form.get('type')
 
+        # Generate the ticket
+        ticket_pdf = generate_ticket(username, email, full_name, ticket_type)
+        
+        # Return the ticket as a downloadable file
+        response = make_response(ticket_pdf)
+        response.headers["Content-Disposition"] = "attachment; filename=ticket.pdf"
+        response.headers["Content-type"] = "application/pdf"
+        return response
+    else:
+        return "Method Not Allowed", 405
 if __name__ == "__main__":
     configure_logging()
     options = {"bind": "%s:%s" % ("0.0.0.0", "8080"), "workers": 4, "loglevel": "info"}

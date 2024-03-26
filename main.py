@@ -17,6 +17,7 @@ import string
 import qrcode
 from io import BytesIO
 import tempfile
+from flask import jsonify
 
 app = Flask(__name__)
 def generate_serial_number(length=8):
@@ -187,14 +188,21 @@ def admin_delete():
         app.logger.error(f"Attempted to delete non-existent user: {username}")
         return "User not found", 404
 
-@app.route("/purchase_history", methods=["GET", "POST"])
+@app.route("/purchase_history", methods=["GET"])
 def purchase_history():
     username = request.cookies.get('username')
     if username != 'admin':
         return "Access Denied", 403
-    # Retrieve user's purchase history
+
+    # Retrieve ticket data from tickets_data.json
     tickets = load_tickets()
-    return render_template('purchase_history.html', tickets=tickets)
+
+    # Modify ticket data to include serial number
+    for index, ticket in enumerate(tickets):
+        ticket['serial_number'] = generate_serial_number()
+    
+    # Pass 'enumerate' function to the template context
+    return render_template('purchase_history.html', tickets=tickets, enumerate=enumerate)
 
 class StandaloneApplication(BaseApplication):
     def __init__(self, app, options=None):
@@ -256,10 +264,10 @@ users = load_users()
 @app.route("/ticket", methods=["GET", "POST"])
 def ticket_route():
     if request.method == "GET":
-        # Render the ticket.html template for GET requests
+        # Render the form for ticket purchase
         return render_template('ticket.html')
     elif request.method == "POST":
-        # Handle the purchase ticket logic for POST requests
+        # Handle the purchase ticket logic
         if not request.cookies.get('username'):
             return redirect(url_for('login'))
         
@@ -271,6 +279,17 @@ def ticket_route():
 
         # Generate the ticket
         ticket_pdf = generate_ticket(username, email, full_name, ticket_type)
+
+        # Store ticket information in tickets_data.json
+        ticket_data = {
+            "username": username,
+            "email": email,
+            "full_name": full_name,
+            "ticket_type": ticket_type
+        }
+        tickets = load_tickets()
+        tickets.append(ticket_data)
+        save_tickets(tickets)
         
         # Return the ticket as a downloadable file
         response = make_response(ticket_pdf)
@@ -279,6 +298,42 @@ def ticket_route():
         return response
     else:
         return "Method Not Allowed", 405
+
+@app.route("/purchase_ticket", methods=["POST"])
+def purchase_ticket():
+    if not request.cookies.get('username'):
+        return redirect(url_for('login'))
+    
+    # Get the user information from the form
+    username = request.cookies.get('username')
+    email = request.form.get('email')
+    full_name = request.form.get('fname') + " " + request.form.get('lname')
+    ticket_type = request.form.get('type')
+
+    # Generate the ticket
+    generate_ticket(username, email, full_name, ticket_type)
+
+    # Redirect to purchase history after successful purchase
+    return redirect(url_for('purchase_history'))
+@app.route("/remove_ticket", methods=["POST"])
+def remove_ticket():
+    if request.method == "POST":
+        # Get the index of the ticket to remove
+        ticket_index = int(request.form.get('ticket_index'))
+
+        # Retrieve ticket data from tickets_data.json
+        tickets = load_tickets()
+
+        # Remove the ticket at the specified index
+        if 0 <= ticket_index < len(tickets):
+            del tickets[ticket_index]
+            save_tickets(tickets)
+            return redirect(url_for('purchase_history'))
+        else:
+            return "Invalid ticket index", 400
+    else:
+        return "Method Not Allowed", 405
+# Modify the purchase_history route to display ticket information
 if __name__ == "__main__":
     configure_logging()
     options = {"bind": "%s:%s" % ("0.0.0.0", "8080"), "workers": 4, "loglevel": "info"}

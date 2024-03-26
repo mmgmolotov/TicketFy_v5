@@ -133,40 +133,48 @@
     </div>
     {% endif %}
 
-    <!-- Purchase history -->
-    {% if tickets %}
-    <table>
-        <thead>
-            <tr>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Full Name</th>
-                <th>Ticket Type</th>
-                <th>Serial Number</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for index, ticket in enumerate(tickets) %}
-            <tr>
-                <td>{{ ticket.username }}</td>
-                <td>{{ ticket.email }}</td>
-                <td>{{ ticket.full_name }}</td>
-                <td>{{ ticket.ticket_type }}</td>
-                <td>{{ ticket.serial_number }}</td>
-                <td>
-                    <form class="remove-form" action="/remove_ticket" method="post">
-                        <input type="hidden" name="ticket_index" value="{{ index }}">
-                        <button class="remove-button" type="submit">Remove</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p>No tickets purchased yet.</p>
-    {% endif %}
+<!-- Purchase history -->
+{% if tickets %}
+<table>
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Full Name</th>
+            <th>Ticket Type</th>
+            <th>Serial Number</th>
+            <th>Action</th>
+            <th>Download Ticket</th> <!-- New column for download button -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for index, ticket in enumerate(tickets) %}
+        <tr>
+            <td>{{ ticket.username }}</td>
+            <td>{{ ticket.email }}</td>
+            <td>{{ ticket.full_name }}</td>
+            <td>{{ ticket.ticket_type }}</td>
+            <td>{{ ticket.serial_number }}</td>
+            <td>
+                <form class="remove-form" action="/remove_ticket" method="post">
+                    <input type="hidden" name="ticket_index" value="{{ index }}">
+                    <button class="remove-button" type="submit">Remove</button>
+                </form>
+            </td>
+            <td> <!-- Download button for ticket -->
+                <form action="/download_ticket" method="post">
+                    <input type="hidden" name="ticket_index" value="{{ index }}">
+                    <button type="submit">Download Ticket</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No tickets purchased yet.</p>
+{% endif %}
+
 </div>
 
 </body>

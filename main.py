@@ -61,6 +61,18 @@ def generate_ticket(username, email, full_name, ticket_type):
     with open(tmp_pdf_file, "rb") as file:
         pdf_bytes = file.read()
 
+    # Store ticket information in tickets_data.json
+    ticket_data = {
+        "username": username,
+        "email": email,
+        "full_name": full_name,
+        "ticket_type": ticket_type,
+        "serial_number": serial_number
+    }
+    tickets = load_tickets()
+    tickets.append(ticket_data)
+    save_tickets(tickets)
+
     return pdf_bytes
 
 @app.route("/", methods=["GET"])
@@ -333,6 +345,33 @@ def remove_ticket():
             return "Invalid ticket index", 400
     else:
         return "Method Not Allowed", 405
+
+@app.route("/download_ticket", methods=["POST"])
+@app.route("/download_ticket", methods=["POST"])
+def download_ticket():
+    if request.method == "POST":
+        # Get the index of the ticket to download
+        ticket_index = int(request.form.get('ticket_index'))
+
+        # Retrieve ticket data from tickets_data.json
+        tickets = load_tickets()
+
+        # Check if the ticket index is valid
+        if 0 <= ticket_index < len(tickets):
+            # Generate the ticket PDF bytes
+            ticket_data = tickets[ticket_index]
+            ticket_pdf = generate_ticket(ticket_data['username'], ticket_data['email'], ticket_data['full_name'], ticket_data['ticket_type'])
+
+            # Set up the response for downloading the ticket
+            response = make_response(ticket_pdf)
+            response.headers["Content-Disposition"] = "attachment; filename=ticket.pdf"
+            response.headers["Content-type"] = "application/pdf"
+            return response
+        else:
+            return "Invalid ticket index", 400
+    else:
+        return "Method Not Allowed", 405
+
 # Modify the purchase_history route to display ticket information
 if __name__ == "__main__":
     configure_logging()

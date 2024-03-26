@@ -25,7 +25,7 @@ def generate_serial_number(length=8):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 def generate_ticket(username, email, full_name, ticket_type):
     # Generate a random serial number
-    serial_number = ''.join(random.choices('0123456789ABCDEF', k=8))
+    serial_number = f"{int(time.time())}_{generate_serial_number()}"
 
     # Create a PDF instance
     pdf = FPDF()
@@ -216,6 +216,7 @@ def purchase_history():
     # Pass 'enumerate' function to the template context
     return render_template('purchase_history.html', tickets=tickets, enumerate=enumerate)
 
+
 class StandaloneApplication(BaseApplication):
     def __init__(self, app, options=None):
         self.application = app
@@ -292,17 +293,6 @@ def ticket_route():
         # Generate the ticket
         ticket_pdf = generate_ticket(username, email, full_name, ticket_type)
 
-        # Store ticket information in tickets_data.json
-        ticket_data = {
-            "username": username,
-            "email": email,
-            "full_name": full_name,
-            "ticket_type": ticket_type
-        }
-        tickets = load_tickets()
-        tickets.append(ticket_data)
-        save_tickets(tickets)
-        
         # Return the ticket as a downloadable file
         response = make_response(ticket_pdf)
         response.headers["Content-Disposition"] = "attachment; filename=ticket.pdf"
@@ -310,6 +300,7 @@ def ticket_route():
         return response
     else:
         return "Method Not Allowed", 405
+
 
 @app.route("/purchase_ticket", methods=["POST"])
 def purchase_ticket():

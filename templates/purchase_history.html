@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purchase History</title>
+	    <link rel="stylesheet" href="./static/style.css">
+    <!-- Unicons -->
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -110,7 +113,32 @@
             background-color: #c82333;
         }
     </style>
-</head>
+<!-- </head> -->
+<!-- <header class="header content"> -->
+    <!-- <nav class="nav"> -->
+        <!-- <a class="nav_logo" href="http://ticketfy.me">Ticketfy</a> -->
+        <!-- <ul class="nav_items"> -->
+            <!-- <li class="nav_item"> -->
+                <!-- <a class="nav_link" href="http://ticketfy.me">Home</a> -->
+                <!-- <a class="nav_link" href="/ticket">Ticket</a> -->
+                <!-- <a class="nav_link" href="http://ticketfy.me/#about">About</a> -->
+                <!-- <a class="nav_link" href="http://ticketfy.me/#contact">Contact</a> -->
+            <!-- </li> -->
+        <!-- </ul> -->
+        <!-- <ul> -->
+            <!-- {% if request.cookies.get('username') %} -->
+            <!-- <li class="nav_item"> -->
+                <!-- <span class="nav_username">{{ request.cookies.get('username') }}</span> | -->
+                <!-- <form action="/logout" method="post"> -->
+                    <!-- <input type="submit" class="button" value="Logout"> -->
+                <!-- </form> -->
+            <!-- </li> -->
+            <!-- {% else %} -->
+            <!-- <button class="button" id="form-open">Login</button> -->
+            <!-- {% endif %} -->
+        <!-- </ul> -->
+    <!-- </nav> -->
+<!-- </header> -->
 <body>
 
 <!-- Video Background -->
@@ -119,19 +147,31 @@
     <!-- Fallback content in case the browser doesn't support HTML5 video -->
     Your browser does not support the video tag.
 </video>
-
-<!-- Overlay -->
-<div class="overlay"></div>
-
-<div class="container">
-    {% if request.cookies.get('username') %}
-    <div class="user_menu">
-        <button class="username_button">{{ request.cookies.get('username') }}</button>
-        <form action="/logout" method="post">
-            <input class="disconnect_button" type="submit" value="Disconnect">
-        </form>
+{% if request.cookies.get('username') %}
+<div class="user_menu">
+    <form action="/logout" method="post">
+        <input class="disconnect_button" type="submit" value="Disconnect">
+    </form>
+    <button class="username_button">{{ request.cookies.get('username') }}</button>
+    <div class="user_menu_items">
+        <a href="/purchase_history">Purchase History</a>
+        <a href="/ticket">Purchase Ticket</a>
+        <a href="/admin">Settings</a>
     </div>
-    {% endif %}
+</div>
+{% endif %}
+<!-- Overlay -->
+<!-- <div class="overlay"></div> -->
+
+<!-- <div class="container"> -->
+    <!-- {% if request.cookies.get('username') %} -->
+    <!-- <div class="user_menu"> -->
+        <!-- <button class="username_button">{{ request.cookies.get('username') }}</button> -->
+        <!-- <form action="/logout" method="post"> -->
+            <!-- <input class="disconnect_button" type="submit" value="Disconnect"> -->
+        <!-- </form> -->
+    <!-- </div> -->
+    <!-- {% endif %} -->
 
 <!-- Purchase history -->
 {% if tickets %}

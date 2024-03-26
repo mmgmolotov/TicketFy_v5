@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file, redirect, url_for, make_response
+from flask import Flask, render_template_string, render_template, request, send_file, redirect, url_for, make_response
 from fpdf import FPDF
 import os
 from gunicorn.app.base import BaseApplication
@@ -25,7 +25,7 @@ def generate_serial_number(length=8):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 def generate_ticket(username, email, full_name, ticket_type):
     # Generate a random serial number
-    serial_number = f"{int(time.time())}_{generate_serial_number()}"
+    serial_number = ''.join(random.choices('0123456789ABCDEF', k=8))
 
     # Create a PDF instance
     pdf = FPDF()
@@ -169,7 +169,18 @@ def admin_edit():
             users[username]['email'] = new_email
             users[username]['password'] = new_password
             save_users(users)
-            return "User details updated successfully", 200
+            # return "User details updated successfully", 200
+            # return redirect(url_for('login'))
+            return render_template_string(
+                """
+                <p>User details updated successfully</p>
+                <script>
+                    setTimeout(function(){
+                        window.location.href = '{{ url_for('admin') }}';
+                    }, 3000); // 3 seconds
+                </script>
+                """
+            )
         else:
             return "User not found", 404
     elif request.method == "GET":
@@ -215,7 +226,6 @@ def purchase_history():
     
     # Pass 'enumerate' function to the template context
     return render_template('purchase_history.html', tickets=tickets, enumerate=enumerate)
-
 
 class StandaloneApplication(BaseApplication):
     def __init__(self, app, options=None):
@@ -293,6 +303,17 @@ def ticket_route():
         # Generate the ticket
         ticket_pdf = generate_ticket(username, email, full_name, ticket_type)
 
+        # Store ticket information in tickets_data.json
+        ticket_data = {
+            "username": username,
+            "email": email,
+            "full_name": full_name,
+            "ticket_type": ticket_type
+        }
+        tickets = load_tickets()
+        tickets.append(ticket_data)
+        save_tickets(tickets)
+        
         # Return the ticket as a downloadable file
         response = make_response(ticket_pdf)
         response.headers["Content-Disposition"] = "attachment; filename=ticket.pdf"
@@ -300,7 +321,6 @@ def ticket_route():
         return response
     else:
         return "Method Not Allowed", 405
-
 
 @app.route("/purchase_ticket", methods=["POST"])
 def purchase_ticket():
